@@ -3,7 +3,7 @@
 #include <string.h>
 //#include <random>
 
-struct Slowa
+struct Slowa //ta struktura jest do przechowywania kazdej formy slowa w poszczegolnym wierszu
 {
 	char simple[20];
 	char past[20];
@@ -11,23 +11,23 @@ struct Slowa
 	char tlumaczenie[20];
 }typedef Slowa_p;
 
-struct Dane
+struct Dane //struktura pomocnicza, w ktorej jest zawarta ilosc wierszy ze slowami w pliku, dlugosci i numery linii
 {
 	int ilosc_wierszy;
 	int *nr_wiersza;
 	int *dlugosc_wiersza;
-	char ** juz_sa;
 }typedef Dane_p;
 
-void dodaj_slowko(Slowa_p * slowa,int ilosc_slow);
-void podaj_slowko(Slowa_p * slowa);
-void toString(Slowa_p * slowa,int rozmiar,char ** tab);
-char* pobierz_slowko(Dane_p dane, int x);
-void policz_plik(Dane_p * dane);
-void sprawdz_sie(Slowa_p dane);
-void usun_slowka(Dane_p *dane);
-void modyfikuj_slowka(Dane_p *dane);
-void wyswietl(Dane_p * dane);
+void dodaj_slowko(Slowa_p * slowa,int ilosc_slow); //dodaje slowo lub kilka slowek do pliku
+void podaj_slowko(Slowa_p * slowa); //zbiera podane przez uzytkownika slowa do wyslania do pliku
+void toString(Slowa_p * slowa,int rozmiar,char ** tab); //laczy 4 formy slowa w jeden wiersz gotwy do wrzucenia do pliku
+char* pobierz_slowko(Dane_p dane, int x); //pobiera losowy wiersz z pliku
+void policz_plik(Dane_p * dane); //aktualizuje dane struktury Dane_p
+void sprawdz_sie(Slowa_p dane); //odpala uczenie sie slowek
+void usun_slowka(Dane_p *dane); //usuwa jeden wybrany wiersz z pliku
+void modyfikuj_slowka(Dane_p *dane); //pozwala edytowac wybranu wiersz w pliku
+//(edytuje ten wiersz prawidlowo, ale dodaje jakims cudem na poczatku spacje, i pozniej program zle czyta inne wiersze)
+void wyswietl(Dane_p * dane); //wyswietla baze slowek z pliku
 void menu(char *c)
 {
 	printf("-----Program do uczenia sie slowek w formie simple, past i participle-----\n\n");
@@ -41,89 +41,91 @@ void menu(char *c)
 		*c = getch();
 	} while (*c != '1' && *c != '2' && *c != '3');
 	system("cls");
-}
+} //menu glowne programu
 
 int main()
 {
-	FILE * f = fopen("file.txt", "w");
+	FILE * f = fopen("file.txt", "w"); //tworzy plik jesli go nie ma
 	fclose(f);
 	Dane_p linie;
 	int i;
-	policz_plik(&linie);
+	policz_plik(&linie); 
 	Slowa_p * words;
-	words = malloc(20 * sizeof(Slowa_p));
+	words = malloc(20 * sizeof(Slowa_p)); //tablica struktury Slowa_p, ktora bedzie przechowywala dodane do pliku slowa
 	srand(time(NULL));
-	char c;
-	do
+	char d;
+	do //ta petla sie wykonuje dopoki w menu glownym nie wyjdzie sie z programu
 	{
-		menu(&c);
+		menu(&d);
 
-		switch (c)
+		switch (d)
 		{
-		case '1':
+			char c;
+		case '1': //odpala uczenie sie slowek
 		{
+			//sprawdza czy sa slowa w pliku, jesli nie ma to ta petla sie konczy i czeka na inny wybor
 			if (linie.ilosc_wierszy == 0) { printf("brak slow w bazie\n"); system("pause"); system("cls"); break; }
 			Slowa_p tezt;
 			do
 			{
 
-				int x = rand() % linie.ilosc_wierszy;
+				int x = rand() % linie.ilosc_wierszy; //losowanie numeru wiersza do uczenia
 
-				char * test = pobierz_slowko(linie, x);
+				char * test = pobierz_slowko(linie, x); // pobranie wiersza do tablicu znakow zaleznie od numeru wiersza
 
 
-				char * schowek = strtok(test, " ");
+				char * schowek = strtok(test, " "); // ta funkcja dzieli tablice znakow na oddzielne wyrazy
 
-				strcpy(tezt.simple, schowek);
-				schowek = strtok(NULL, " ");
-				strcpy(tezt.past, schowek);
-				schowek = strtok(NULL, " ");
-				strcpy(tezt.participle, schowek);
-				schowek = strtok(NULL, " ");
-				strcpy(tezt.tlumaczenie, schowek);
+				strcpy(tezt.simple, schowek); //cale
+				schowek = strtok(NULL, " "); //jej
+				strcpy(tezt.past, schowek); //dzialanie
+				schowek = strtok(NULL, " "); //tak 
+				strcpy(tezt.participle, schowek); //wyglada
+				schowek = strtok(NULL, " "); //troche
+				strcpy(tezt.tlumaczenie, schowek); //dziwne
 
-				sprawdz_sie(tezt);
+				sprawdz_sie(tezt); //pytanie o wprowadzenie form slowa i sprawdzenie czy sa dobrze
 
 				printf("chcesz dalej cwiczyc?      N/n - nie   dowolny klawisz - tak");
 				//c = getch();
-				c = getch();
+				c = getch(); // getch() pobiera z klawiatury jeden klawisz do zmiennej c, jesli c == n/N to funkcja dalej nie pyta o slowka
 				system("cls");
 
-			} while (c != 'n' && c != 'N');
+			} while (c != 'n' && c != 'N'); //slowka ciagle sa rzucane dopoki nie kliknie sie n/N
 			break;
 		}
-		case '2':
+		case '2': //otwiera edycje pliku(bazy slowek)
 		{
 			int indeks_slow = 0;
 			char e = ' ';
 			do
 			{
-				wyswietl(&linie);
+				wyswietl(&linie); //po prostu wyswietla wszystkie slowka i aktualizuje sie od razu po edycji pliku
 				do {
 					e = getch();
-				} while (e != 'n' && e != 'N' && e != '1' && e != '2' && e != '3');
+				} while (e != 'n' && e != 'N' && e != '1' && e != '2' && e != '3'); //pyta o podanie klawisza tak dlugo az kliknie sie n/N lub 1 lub 2 lub 3
 				if (e == '1')
 				{
 					do
 					{
 						podaj_slowko(&words[indeks_slow]);
 						printf("Dodac inne slowka?     n/N - nie    dowolny klawisz - tak\n");
-						//c = getch();
+						//c = getch(); <--- te getch() w trybie debug sa potrzebne, a wtrybie release nie
 						c = getch();
 						indeks_slow++;
 
-					} while (c != 'n' && c != 'N');
+					} while (c != 'n' && c != 'N'); //pyta tak dlugo o podanie nowych slowek, az kliknie sie n/N
 
-					dodaj_slowko(words, indeks_slow);
+					dodaj_slowko(words, indeks_slow); //dodaje wszystkie podane slowka do pliku (dodaje z powrotem te co zostaly usuniete, ale to sie naprawi)
 				}
 				if (e == '2')
-					usun_slowka(&linie);
+					usun_slowka(&linie); //usuwa wybrany wiersz, i wtedy petla sie powtarza od nowa
 				if (e == '3')
-					modyfikuj_slowka(&linie);
-				policz_plik(&linie);
-				//c = getch();
+					modyfikuj_slowka(&linie); //modyfikuje wybrany wiersz i wtedy petla sie powtarza od nowa
+				policz_plik(&linie); //liczy za kazdym razem ilosc wierszy i dlugosci tych wierszy, zeby byc na biezaco
+				//c = getch(); <--- te tez
 				system("cls");
-			} while (e != 'n' && e != 'N');
+			} while (e != 'n' && e != 'N'); //wychodzi z edycji slowek kiedy sie nacisnie n/N
 
 
 			break;
@@ -136,35 +138,35 @@ int main()
 	return 0;
 
 	getchar();
-	free(words);
+	free(words); // funkcja free zwalnia pamiec w tablicach, wazne dla optymalizacji
 	return 0;
 }
 
 void dodaj_slowko(Slowa_p * slowa,int ilosc_slow)
 {
 	FILE * file = fopen("file.txt", "a");
-	if (file == NULL) { puts("nieprawidlowy plik"); getchar(); exit(-1); }
+	if (file == NULL) { puts("nieprawidlowy plik"); getchar(); exit(-1); } //sprawdza czy wpisalo sie dobra nazwe pliku, jesli nie, to program sie wylacza
 	char ** wynik;
 	int i;
-		wynik = malloc(ilosc_slow * sizeof(char*));
+		wynik = malloc(ilosc_slow * sizeof(char*)); //alokowanie pamieci..
 		for (i = 0; i < ilosc_slow; i++)
 		{
-			wynik[i] = malloc(40 * sizeof(char));
+			wynik[i] = malloc(40 * sizeof(char)); //.. w podwojnej tablicy
 		}
 
-		toString(slowa, ilosc_slow, wynik);
+		toString(slowa, ilosc_slow, wynik); //do tej tablicy wrzucane sa wierze sklejone z nowo podanych form slowek
 
 		for (i = 0; i < ilosc_slow; i++)
-			fwrite(wynik[i], sizeof(char), strlen(wynik[i]), file);
-		fclose(file);
+			fwrite(wynik[i], sizeof(char), strlen(wynik[i]), file); // w takiej formie sa wrzucane do pliku
+		fclose(file); //trzeba zawsze pamietac o zamknieciu pliku
 
-	for (i = ilosc_slow - 1; i >= 0; i--)
+	for (i = ilosc_slow - 1; i >= 0; i--) //zwalnianie pamieci z tablicy wynik
 	{
 		char* ptr = wynik[i];
 		free(ptr);
 	}
 	char* ptr = wynik;
-	free(ptr);
+	free(ptr); //az dotad jest zwalniana pamiec
 }
 
 void toString(Slowa_p * slowa, int rozmiar, char ** string)
@@ -172,6 +174,7 @@ void toString(Slowa_p * slowa, int rozmiar, char ** string)
 	int i;
 		for(i = 0; i < rozmiar; i++)
 		{
+			//sprintf() wrzuca napisany przez nas tekst do stringa
 			sprintf(*string, "%s %s %s %s\n\0", slowa->simple, slowa->past, slowa->participle, slowa->tlumaczenie);
 			slowa++;
 			string++;
@@ -180,6 +183,7 @@ void toString(Slowa_p * slowa, int rozmiar, char ** string)
 
 void podaj_slowko(Slowa_p * slowa)
 {
+	//zwykle pobranie z konsoli slowek i wrzucenie ich do struktury slowa
 	char slowka[4][20];
 	puts("Podaj slowko ");
 	gets(&slowka[0]);
@@ -199,22 +203,24 @@ char* pobierz_slowko(Dane_p dane, int x)
 {
 	FILE * file = fopen("file.txt", "r");
 	if (file == NULL) { puts("nieprawidlowy plik"); getchar(); exit(-1); }
-	fseek(file, 0, 2);
+	fseek(file, 0, 2);//sprawdzenie czy plik jest pusty..
 	if (ftell(file) == 0)
 	{
-		puts("plik jest pusty"); getchar(); exit(-1);
+		puts("plik jest pusty"); getchar(); exit(-1); 
 	}
-	fseek(file, 0, 0);
+	fseek(file, 0, 0); //..dotad
+	//fseek ustawia wskaznik na konkretnym miejscu w pliku
 	size_t bufor;
 	char * slowo;
-	slowo = malloc((dane.dlugosc_wiersza[x] + 1) * sizeof(char));
+	slowo = malloc((dane.dlugosc_wiersza[x] + 1) * sizeof(char)); //alokowanie tablicy znakow do pobrania wiersza z pliku
 	char * temp;
-	temp = malloc((dane.dlugosc_wiersza[x] + 1) * sizeof(char));
-	fseek(file, dane.nr_wiersza[x], 0);
-	bufor = fread(temp, sizeof(char), dane.dlugosc_wiersza[x], file);
-	sprintf(slowo,"%.*s", bufor,temp);
+	temp = malloc((dane.dlugosc_wiersza[x] + 1) * sizeof(char)); //alokowanie kopii, do ktorej trzeba wrzucic oryginal razem
+	//z rozmiarem bufora, co zapobiega powstaniu dziwnych znaczkow
+	fseek(file, dane.nr_wiersza[x], 0); //ustawianie wskaznika na poczatek losowego wiersza w pliku
+	bufor = fread(temp, sizeof(char), dane.dlugosc_wiersza[x], file); //pobranie tego wiersza z pliku
+	sprintf(slowo,"%.*s", bufor,temp);// razem z buforem wstawiamy tablice znakow do kopii, teraz jest bez dziwnych znaczkow
 	fclose(file);
-	return slowo;
+	return slowo; // zwracanie kopii do tablicy w mainie
 	//free(temp);
 }
 
@@ -227,22 +233,22 @@ void policz_plik(Dane_p *dane)
 	int znaki = 0;
 	int numery = 0;
 	int i = 0;
-	while (!feof(file))
+	while (!feof(file)) //dopoki wskaznik nie bedzie na koncu pliku petle bedzie sie wykonywac
 	{
-		if (getc(file) == '\n')
+		if (getc(file) == '\n') //liczenie wierszy
 			dane->ilosc_wierszy++;
 	}
 	fseek(file, 0, 0);
-	dane->nr_wiersza = malloc(dane->ilosc_wierszy * sizeof(int));
-	dane->dlugosc_wiersza = malloc(dane->ilosc_wierszy * sizeof(int));
+	dane->nr_wiersza = malloc(dane->ilosc_wierszy * sizeof(int)); //nadanie tablicy z numerami wierszy rozmiaru ilosci wierszy
+	dane->dlugosc_wiersza = malloc(dane->ilosc_wierszy * sizeof(int));//nadanie tablicy z dlugosciami wierszy rozmiaru ilosci wierszy
 
 	while (!feof(file))
 	{
-			znaki++;
+			znaki++; //liczy ilosc znakow w jednym wierszu
 			if (getc(file) == '\n')
 			{
-				dane->dlugosc_wiersza[i] = znaki - 1;
-				dane->nr_wiersza[i] = numery;
+				dane->dlugosc_wiersza[i] = znaki - 1;// przypisuje do miejsca w tablicy dlugosc tego wiersza
+				dane->nr_wiersza[i] = numery; //nadaje numer wiersza(ktory char z calego pliku jest poczatkiem tego wiersza)
 				numery += znaki + 1;
 				znaki = 0;
 				i++;
@@ -264,7 +270,7 @@ void sprawdz_sie(Slowa_p dane)
 	printf("podaj tlumaczenie ");
 	scanf("%s", &odpowiedzi[2]);
 
-	if (strcmp(dane.past, &odpowiedzi[0]) == 0) good++;
+	if (strcmp(dane.past, &odpowiedzi[0]) == 0) good++; //funckja strcmp porownuje dwa stringi i zwraca 0 jesli sa identyczne
 	else {
 		printf("napisales '%s', a powinno byc '%s'\n", odpowiedzi[0], dane.past);
 	}
@@ -292,11 +298,11 @@ void usun_slowka(Dane_p *dane)
 	{
 		puts("brak slow do usuniecia\n"); system("pause"); return;
 	}
-	fseek(file, 0, 0);
+	fseek(file, 0, 0);//jesli plik jest pusty, funckja nic nie zrobi
 	int x;
 	int i,j;
 	puts("podaj nr wiersza do usuniecia ");
-	scanf("%i", &x);
+	scanf("%i", &x);// wiersz o numerze x bedzie usuniety
 	char ** buffer;
 	size_t * buffer_size;
 	buffer = malloc(dane->ilosc_wierszy * sizeof(char*));
@@ -304,7 +310,8 @@ void usun_slowka(Dane_p *dane)
 	for (i = 0; i < dane->ilosc_wierszy; i++) 
 	{
 		buffer[i] = malloc((dane->dlugosc_wiersza[i] + 1) * sizeof(char));
-		buffer_size[i] = fread(buffer[i], sizeof(char), dane->dlugosc_wiersza[i], file);
+		buffer_size[i] = fread(buffer[i], sizeof(char), dane->dlugosc_wiersza[i], file); //tak jak funkcji pobierz_slowko sa pobierane
+		//wiersze z pliku
 		fseek(file, 2, 1);
 	}
 
@@ -314,13 +321,13 @@ void usun_slowka(Dane_p *dane)
 
 	char ** back;
 	back = malloc((dane->ilosc_wierszy - 1) * sizeof(char*));
-	for (i = 0,j = 0; i < dane->ilosc_wierszy; i++)
+	for (i = 0,j = 0; i < dane->ilosc_wierszy; i++) //potem do pliku wszystkie slowa oprocz tego do usuniecia sa wrzucane jeszcze raz
 	{
-		if (i + 1 != x)
+		if (i + 1 != x) //sprawdzenie czy dany wiersz jest tym do usuniecia, jesli tak, to ten if sie nie wykona
 		{
 			back[j] = malloc((dane->dlugosc_wiersza[i] + 1) * sizeof(char));
 			sprintf(back[j], "%.*s\n", buffer_size[i], buffer[i]);
-			fwrite(back[j], sizeof(char), dane->dlugosc_wiersza[i]+1, file);
+			fwrite(back[j], sizeof(char), dane->dlugosc_wiersza[i]+1, file); 
 			j++;
 		}
 	}
@@ -338,11 +345,11 @@ void modyfikuj_slowka(Dane_p *dane)
 	{
 		puts("brak slow do modyfikacji\n"); system("pause"); return;
 	}
-	fseek(file, 0, 0);
+	fseek(file, 0, 0); //funkcja nic nie zrobi jak plik jest pusty
 	int x;
 	int i, j;
 	puts("podaj nr wiersza do edycji ");
-	scanf("%i", &x);
+	scanf("%i", &x); //wiersz nr x bedzie edytowany
 	char ** buffer;
 	size_t * buffer_size;
 	buffer = malloc(dane->ilosc_wierszy * sizeof(char*));
@@ -350,38 +357,38 @@ void modyfikuj_slowka(Dane_p *dane)
 	for (i = 0; i < dane->ilosc_wierszy; i++)
 	{
 		buffer[i] = malloc((dane->dlugosc_wiersza[i] + 1) * sizeof(char));
-		buffer_size[i] = fread(buffer[i], sizeof(char), dane->dlugosc_wiersza[i], file);
+		buffer_size[i] = fread(buffer[i], sizeof(char), dane->dlugosc_wiersza[i], file); //pobranie wszystkich wierszy
 		fseek(file, 2, 1);
 	}
 	getchar();
 	fclose(file);
-	char nowe[4][20];
-	puts("podaj nowa forme simple ");
+	char nowe[4][20];    //pytanie
+	puts("podaj nowa forme simple "); //o
 	gets(nowe[0]);
-	puts("podaj nowa forme past ");
+	puts("podaj nowa forme past "); // nowe 
 	gets(nowe[1]);
-	puts("podaj nowa forme participle ");
+	puts("podaj nowa forme participle ");// formy
 	gets(nowe[2]);
-	puts("podaj nowe tlumaczenie ");
+	puts("podaj nowe tlumaczenie ");// slowka
 	gets(nowe[3]);
 
 	char ** back;
 	back = malloc((dane->ilosc_wierszy) * sizeof(char*));
 	for (i = 0; i < dane->ilosc_wierszy; i++)
 	{
-		back[i] = malloc((dane->dlugosc_wiersza[i] + 1) * sizeof(char));
-		sprintf(back[i], "%.*s\n", buffer_size[i], buffer[i]);
+		back[i] = malloc((dane->dlugosc_wiersza[i] + 1) * sizeof(char)); //tworzona jest kopia tak jak przy funkcji pobierz_slowka
+		sprintf(back[i], "%.*s\n", buffer_size[i], buffer[i]); // do kopii wrzucamy wiersze bez dziwnych znaczkow
 	}
 
-	sprintf(back[x - 1], "%s %s %s %s\n", nowe[0], nowe[1], nowe[2], nowe[3]);
+	sprintf(back[x - 1], "%s %s %s %s\n", nowe[0], nowe[1], nowe[2], nowe[3]); // teraz zmieniamy wybrany wiersz na nowe slowka
 
-	dane->dlugosc_wiersza[x - 1] = strlen(back[x - 1]);
+	dane->dlugosc_wiersza[x - 1] = strlen(back[x - 1]); //trzeba tez zmienic dlugosc tego wiersza
 
 	file = fopen("file.txt", "w");
 
 	for (i = 0; i < dane->ilosc_wierszy; i++)
 	{
-			fwrite(back[i], sizeof(char), dane->dlugosc_wiersza[i] + 1, file);
+			fwrite(back[i], sizeof(char), dane->dlugosc_wiersza[i] + 1, file); //wrzucamy gotowe wiersze z powrotem do pliku
 	}
 	fclose(file);
 }
@@ -397,15 +404,16 @@ void wyswietl(Dane_p * dane)
 		puts("plik jest pusty"); 
 		printf("1 - dodaj slowo/slowa     2 - usun slowo    3 - modyfikuj slowo\n");
 		return;
-	}
-	fseek(file, 0, 0);
+	} 
+	fseek(file, 0, 0); //jesli plik jest pusty, funkcja wyswietli tylko dostepne opcje edycji
 
 	char * buffer;
 	size_t buffer_size;
-	buffer = malloc(dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1] * sizeof(char));
-	buffer_size = fread(buffer, sizeof(char), dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1], file);
+	buffer = malloc(dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1] * sizeof(char)); //alokowanie tablicy o rozmiarze odpowiadajecmu ilosci znakow w pliku
+	//numer ostatniego wiersza plus jego dlugosc to ilosc wszystkich znakow
+	buffer_size = fread(buffer, sizeof(char), dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1], file); // pobranie wszystkich znakow do tej tablicy
 	char * tak; tak = malloc(dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1] * sizeof(char));
-	sprintf(tak, "%.*s", buffer_size, buffer);
+	sprintf(tak, "%.*s", buffer_size, buffer); //wrzucenie originalu tablicy wraz z wielkoscia buforu ,zeby zapobiec brzdkim znakom
 	fclose(file);
 	printf("Simple       Past       Participle      Tlumaczenie\n\n");
 	//int najdluzszy wyraz = dane->dlugosc_wiersza[0];
@@ -418,7 +426,7 @@ void wyswietl(Dane_p * dane)
 
 		printf("%c", tak[i]);
 		if (tak[i] == ' ') printf("%6c",tak[i]);
-		if (tak[i] == '\n' && g - 1 <= dane->ilosc_wierszy) { printf("%i. ", g); g++; }
+		if (tak[i] == '\n' && g - 1 <= dane->ilosc_wierszy) { printf("%i. ", g); g++; } //wydrukowanie slowek na ekranie
 	}
 	printf("\n1 - dodaj slowo/slowa     2 - usun slowo    3 - modyfikuj slowo\n");
 
