@@ -27,7 +27,7 @@ void usun_slowka(Dane_p *dane); //usuwa jeden wybrany wiersz z pliku
 void modyfikuj_slowka(Dane_p *dane); //pozwala edytowac wybranu wiersz w pliku
 //(edytuje ten wiersz prawidlowo, ale dodaje jakims cudem na poczatku spacje, i pozniej program zle czyta inne wiersze)
 void wyswietl(Dane_p * dane); //wyswietla baze slowek z pliku
-void menu(char *c)
+void menu(char *c) // menu glowne programu
 {
 	printf("-----Program do uczenia sie slowek w formie simple, past i participle-----\n\n");
 	printf("wprowadz numer wyswietlony przy opcji, zeby ja wlaczyc\n\n");
@@ -41,9 +41,53 @@ void menu(char *c)
 	} while (*c != '1' && *c != '2' && *c != '3');
 	system("cls");
 } //menu glowne programu
+int suma_char(char * c)
+{
+	int x = strlen(c);
+	int suma = 0;
+	int i;
+	for (i = 0; i < x; i++)
+	{
+		suma += c[i];
+	}
+	return suma;
+}
+char * obetnij(char * c,char * d)
+{
+	char wynik[20];
+	size_t t = strlen(d);
+	strncpy(wynik, c, t);
+	char wynik1[20];
+	sprintf(wynik1, "%.*s", t,wynik);
+	return wynik1;
+}
+int czy_jedna(char * a, char * b) // sprawdza czy slowa roznia sie tylko jedna litera
+{
+	int i;
+	int jedna = 0;
+	if (strlen(a) != strlen(b)) return 0;
+	int x = strlen(a);
+	for (i = 0; i < x; i++)
+	{
+		if (a[i] != b[i])jedna++;
+	}
+	if (jedna == 1) return 1;
+	return 0;
+}
 
 int main()
 {
+	/*char wit[20] = "siemandero";
+	char am[20] = "siema";
+	char * wynik;
+	strcpy(wynik, obetnij(wit, am));
+	puts(wynik);*/
+	/*char  h[20];
+	scanf("%s", h);
+	printf("%s",h);
+	getchar();
+	getchar();
+	return 0;*/
 	FILE * f = fopen("file.txt", "r"); //tworzy plik jesli go nie ma
 	if (f == NULL) f = fopen("file.txt", "w");
 	fclose(f);
@@ -255,15 +299,25 @@ void sprawdz_sie(Slowa_p dane)
 	printf("podaj tlumaczenie ");
 	scanf("%s", &odpowiedzi[2]);
 
-	if (strcmp(dane.past, &odpowiedzi[0]) == 0) good++; //funckja strcmp porownuje dwa stringi i zwraca 0 jesli sa identyczne
-	else {
+	if (strcmp(dane.past, &odpowiedzi[0]) == 0 ) good++; //funckja strcmp porownuje dwa stringi i zwraca 0 jesli sa identyczne
+	else if (suma_char(dane.past) == suma_char(odpowiedzi[0])) good++;
+	else if (czy_jedna(dane.past, odpowiedzi[0])) good++;
+	else if (strcmp(dane.past, obetnij(&odpowiedzi[0], dane.past)) == 0) good++;
+	else 
+	{
 		printf("napisales '%s', a powinno byc '%s'\n", odpowiedzi[0], dane.past);
 	}
 	if (strcmp(dane.participle, &odpowiedzi[1]) == 0) good++;
+	else if (suma_char(dane.participle) == suma_char(odpowiedzi[1])) good++;
+	else if (czy_jedna(dane.participle, odpowiedzi[1])) good++;
+	else if (strcmp(dane.participle, obetnij(&odpowiedzi[1], dane.participle)) == 0) good++;
 	else {
 		printf("napisales '%s', a powinno byc '%s'\n", odpowiedzi[1], dane.participle);
 	}
 	if (strcmp(dane.tlumaczenie, &odpowiedzi[2]) == 0) good++;
+	else if (suma_char(dane.tlumaczenie) == suma_char(odpowiedzi[2])) good++;
+	else if (czy_jedna(dane.tlumaczenie, odpowiedzi[2])) good++;
+	else if (strcmp(dane.tlumaczenie, obetnij(&odpowiedzi[2], dane.tlumaczenie)) == 0) good++;
 	else {
 		printf("napisales '%s', a powinno byc '%s'\n", odpowiedzi[2], dane.tlumaczenie);
 	}
@@ -364,7 +418,8 @@ void modyfikuj_slowka(Dane_p *dane)
 		back[i] = malloc((dane->dlugosc_wiersza[i] + 1) * sizeof(char)); //tworzona jest kopia tak jak przy funkcji pobierz_slowka
 		sprintf(back[i], "%.*s\n", buffer_size[i], buffer[i]); // do kopii wrzucamy wiersze bez dziwnych znaczkow
 	}
-
+	int length = strlen(nowe[0]) + strlen(nowe[1]) + strlen(nowe[2]) + strlen(nowe[3]) + 1;
+	back[x - 1] = malloc((length + 1) * sizeof(char));
 	sprintf(back[x - 1], "%s %s %s %s\n", nowe[0], nowe[1], nowe[2], nowe[3]); // teraz zmieniamy wybrany wiersz na nowe slowka
 	dane->dlugosc_wiersza[x - 1] = strlen(back[x - 1]) - 1; //trzeba tez zmienic dlugosc tego wiersza
 	file = fopen("file.txt", "w");
