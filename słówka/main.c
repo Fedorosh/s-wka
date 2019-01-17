@@ -441,7 +441,7 @@ void wyswietl(Dane_p * dane)
 	//numer ostatniego wiersza plus jego dlugosc to ilosc wszystkich znakow
 	buffer_size = fread(buffer, sizeof(char), dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1], file); // pobranie wszystkich znakow do tej tablicy
 	char * tak; tak = malloc(dane->nr_wiersza[dane->ilosc_wierszy - 1] + dane->dlugosc_wiersza[dane->ilosc_wierszy - 1] * sizeof(char));
-	sprintf(tak, "%.*s", buffer_size, buffer); //wrzucenie originalu tablicy wraz z wielkoscia buforu ,zeby zapobiec brzdkim znakom
+	sprintf(tak, "%.*s", buffer_size, buffer); //wrzucenie originalu tablicy wraz z wielkoscia buforu ,zeby zapobiec brzydkim znakom
 	fclose(file);
 	printf("Simple       Past       Participle      Tlumaczenie\n\n");
 	//int najdluzszy wyraz = dane->dlugosc_wiersza[0];
@@ -454,7 +454,7 @@ void wyswietl(Dane_p * dane)
 
 		printf("%c", tak[i]);
 		if (tak[i] == ' ') printf("%6c",tak[i]);
-		if (tak[i] == '\n' && g - 1 <= dane->ilosc_wierszy) { printf("%i. ", g); g++; } //wydrukowanie slowek na ekranie
+		if (tak[i] == '\n' && g - 1 < dane->ilosc_wierszy ) { printf("%i. ", g); g++; } //wydrukowanie slowek na ekranie
 	}
 	printf("\n1 - dodaj slowo/slowa     2 - usun slowo    3 - modyfikuj slowo\n");
 
