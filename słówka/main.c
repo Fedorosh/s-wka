@@ -77,17 +77,6 @@ int czy_jedna(char * a, char * b) // sprawdza czy slowa roznia sie tylko jedna l
 
 int main()
 {
-	/*char wit[20] = "siemandero";
-	char am[20] = "siema";
-	char * wynik;
-	strcpy(wynik, obetnij(wit, am));
-	puts(wynik);*/
-	/*char  h[20];
-	scanf("%s", h);
-	printf("%s",h);
-	getchar();
-	getchar();
-	return 0;*/
 	FILE * f = fopen("file.txt", "r"); //tworzy plik jesli go nie ma
 	if (f == NULL) f = fopen("file.txt", "w");
 	fclose(f);
@@ -114,7 +103,7 @@ int main()
 
 				int x = rand() % linie.ilosc_wierszy; //losowanie numeru wiersza do uczenia
 
-				char * test = pobierz_slowko(linie, x); // pobranie wiersza do tablicu znakow zaleznie od numeru wiersza
+				char * test = pobierz_slowko(linie, x); // pobranie wiersza do tablicy znakow zaleznie od numeru wiersza
 
 
 				char * schowek = strtok(test, " "); // ta funkcja dzieli tablice znakow na oddzielne wyrazy
@@ -133,6 +122,7 @@ int main()
 				//c = getch();
 				c = getch(); // getch() pobiera z klawiatury jeden klawisz do zmiennej c, jesli c == n/N to funkcja dalej nie pyta o slowka
 				system("cls");
+				getchar();
 
 			} while (c != 'n' && c != 'N'); //slowka ciagle sa rzucane dopoki nie kliknie sie n/N
 			break;
